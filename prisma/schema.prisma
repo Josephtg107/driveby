@@ -1,0 +1,207 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Business {
+  id            String   @id @default(cuid())
+  name          String
+  slug          String   @unique
+  logoUrl       String?
+  currency      String   @default("MXN")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  locations     Location[]
+  users         User[]
+  products      Product[]
+  modifierGroups ModifierGroup[]
+  categories    Category[]
+  orders        Order[]
+  auditLogs     AuditLog[]
+  Theme         Theme?
+  DomainMapping DomainMapping[]
+}
+
+model Theme {
+  id         String  @id @default(cuid())
+  businessId String  @unique
+  primary    String? // ej #0F172A
+  accent     String? // ej #22C55E
+  text       String?
+  logoUrl    String?
+  coverUrl   String?
+  Business   Business @relation(fields: [businessId], references: [id])
+}
+
+model DomainMapping {
+  id            String   @id @default(cuid())
+  businessId    String
+  domain        String   @unique  // "cafeshop.com" o "cafeshop.drivebyapp.com"
+  primary       Boolean  @default(false)
+  locationId    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  Business      Business @relation(fields: [businessId], references: [id])
+}
+
+model User {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  name       String?
+  role       String   @default("staff") // admin, staff, viewer
+  businessId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  Business   Business @relation(fields: [businessId], references: [id])
+}
+
+model Location {
+  id          String        @id @default(cuid())
+  name        String
+  address     String?
+  businessId  String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  parkingSpots ParkingSpot[]
+  Business    Business      @relation(fields: [businessId], references: [id])
+}
+
+model ParkingSpot {
+  id         String   @id @default(cuid())
+  code       String   // A1, A2, etc.
+  qrSlug     String   @unique // spot-001, spot-002, etc.
+  locationId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  Location   Location @relation(fields: [locationId], references: [id])
+}
+
+model Category {
+  id         String   @id @default(cuid())
+  name       String
+  businessId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  products   Product[]
+  Business   Business @relation(fields: [businessId], references: [id])
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Float
+  imageUrl    String?
+  available   Boolean  @default(true)
+  categoryId  String
+  businessId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  Category    Category @relation(fields: [categoryId], references: [id])
+  Business    Business @relation(fields: [businessId], references: [id])
+  productModifierGroups ProductModifierGroup[]
+  orderItems  OrderItem[]
+}
+
+model ModifierGroup {
+  id            String   @id @default(cuid())
+  name          String
+  required      Boolean  @default(false)
+  maxSelections Int      @default(1)
+  businessId    String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  options       ModifierOption[]
+  Business      Business @relation(fields: [businessId], references: [id])
+  productModifierGroups ProductModifierGroup[]
+}
+
+model ModifierOption {
+  id             String       @id @default(cuid())
+  name           String
+  price          Float        @default(0)
+  modifierGroupId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  ModifierGroup  ModifierGroup @relation(fields: [modifierGroupId], references: [id])
+  orderItemModifiers OrderItemModifier[]
+}
+
+model ProductModifierGroup {
+  id             String       @id @default(cuid())
+  productId      String
+  modifierGroupId String
+  Product        Product      @relation(fields: [productId], references: [id])
+  ModifierGroup  ModifierGroup @relation(fields: [modifierGroupId], references: [id])
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  orderNumber String      @unique
+  status      String      @default("pending") // pending, confirmed, preparing, ready, completed, cancelled
+  total       Float
+  businessId  String
+  locationId  String
+  parkingSpotId String?
+  customerName String?
+  customerPhone String?
+  customerEmail String?
+  notes       String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  Business    Business    @relation(fields: [businessId], references: [id])
+  Location    Location    @relation(fields: [locationId], references: [id])
+  ParkingSpot ParkingSpot? @relation(fields: [parkingSpotId], references: [id])
+  orderItems  OrderItem[]
+  orderEvents OrderEvent[]
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  quantity  Int
+  price     Float
+  productId String
+  orderId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Product   Product  @relation(fields: [productId], references: [id])
+  Order     Order    @relation(fields: [orderId], references: [id])
+  orderItemModifiers OrderItemModifier[]
+}
+
+model OrderItemModifier {
+  id              String        @id @default(cuid())
+  orderItemId     String
+  modifierOptionId String
+  price           Float
+  OrderItem       OrderItem     @relation(fields: [orderItemId], references: [id])
+  ModifierOption  ModifierOption @relation(fields: [modifierOptionId], references: [id])
+}
+
+model OrderEvent {
+  id        String   @id @default(cuid())
+  orderId   String
+  eventType String   // status_change, payment_received, etc.
+  data      String?  // JSON data
+  createdAt DateTime @default(now())
+  Order     Order    @relation(fields: [orderId], references: [id])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String
+  entityType String
+  entityId   String
+  userId     String?
+  businessId String
+  data       String?  // JSON data
+  createdAt  DateTime @default(now())
+  Business   Business @relation(fields: [businessId], references: [id])
+}
