@@ -1,0 +1,31 @@
+business,location,code,qrSlug,url,file
+DriveByApp,DriveByApp Demo Location,A1,demo-spot-001,http://localhost:3001/l/demo-location/s/demo-spot-001,/qr/drivebyapp/demo-location/A1.png
+DriveByApp,DriveByApp Demo Location,A10,demo-spot-010,http://localhost:3001/l/demo-location/s/demo-spot-010,/qr/drivebyapp/demo-location/A10.png
+DriveByApp,DriveByApp Demo Location,A2,demo-spot-002,http://localhost:3001/l/demo-location/s/demo-spot-002,/qr/drivebyapp/demo-location/A2.png
+DriveByApp,DriveByApp Demo Location,A3,demo-spot-003,http://localhost:3001/l/demo-location/s/demo-spot-003,/qr/drivebyapp/demo-location/A3.png
+DriveByApp,DriveByApp Demo Location,A4,demo-spot-004,http://localhost:3001/l/demo-location/s/demo-spot-004,/qr/drivebyapp/demo-location/A4.png
+DriveByApp,DriveByApp Demo Location,A5,demo-spot-005,http://localhost:3001/l/demo-location/s/demo-spot-005,/qr/drivebyapp/demo-location/A5.png
+DriveByApp,DriveByApp Demo Location,A6,demo-spot-006,http://localhost:3001/l/demo-location/s/demo-spot-006,/qr/drivebyapp/demo-location/A6.png
+DriveByApp,DriveByApp Demo Location,A7,demo-spot-007,http://localhost:3001/l/demo-location/s/demo-spot-007,/qr/drivebyapp/demo-location/A7.png
+DriveByApp,DriveByApp Demo Location,A8,demo-spot-008,http://localhost:3001/l/demo-location/s/demo-spot-008,/qr/drivebyapp/demo-location/A8.png
+DriveByApp,DriveByApp Demo Location,A9,demo-spot-009,http://localhost:3001/l/demo-location/s/demo-spot-009,/qr/drivebyapp/demo-location/A9.png
+All Day Coffee,All Day Coffee - Polanco,B1,adc-spot-001,http://localhost:3001/l/adc-location/s/adc-spot-001,/qr/alldaycoffee/adc-location/B1.png
+All Day Coffee,All Day Coffee - Polanco,B10,adc-spot-010,http://localhost:3001/l/adc-location/s/adc-spot-010,/qr/alldaycoffee/adc-location/B10.png
+All Day Coffee,All Day Coffee - Polanco,B2,adc-spot-002,http://localhost:3001/l/adc-location/s/adc-spot-002,/qr/alldaycoffee/adc-location/B2.png
+All Day Coffee,All Day Coffee - Polanco,B3,adc-spot-003,http://localhost:3001/l/adc-location/s/adc-spot-003,/qr/alldaycoffee/adc-location/B3.png
+All Day Coffee,All Day Coffee - Polanco,B4,adc-spot-004,http://localhost:3001/l/adc-location/s/adc-spot-004,/qr/alldaycoffee/adc-location/B4.png
+All Day Coffee,All Day Coffee - Polanco,B5,adc-spot-005,http://localhost:3001/l/adc-location/s/adc-spot-005,/qr/alldaycoffee/adc-location/B5.png
+All Day Coffee,All Day Coffee - Polanco,B6,adc-spot-006,http://localhost:3001/l/adc-location/s/adc-spot-006,/qr/alldaycoffee/adc-location/B6.png
+All Day Coffee,All Day Coffee - Polanco,B7,adc-spot-007,http://localhost:3001/l/adc-location/s/adc-spot-007,/qr/alldaycoffee/adc-location/B7.png
+All Day Coffee,All Day Coffee - Polanco,B8,adc-spot-008,http://localhost:3001/l/adc-location/s/adc-spot-008,/qr/alldaycoffee/adc-location/B8.png
+All Day Coffee,All Day Coffee - Polanco,B9,adc-spot-009,http://localhost:3001/l/adc-location/s/adc-spot-009,/qr/alldaycoffee/adc-location/B9.png
+Pizza Express,Pizza Express - Condesa,C1,pizza-spot-001,http://localhost:3001/l/pizza-location/s/pizza-spot-001,/qr/pizzaexpress/pizza-location/C1.png
+Pizza Express,Pizza Express - Condesa,C10,pizza-spot-010,http://localhost:3001/l/pizza-location/s/pizza-spot-010,/qr/pizzaexpress/pizza-location/C10.png
+Pizza Express,Pizza Express - Condesa,C2,pizza-spot-002,http://localhost:3001/l/pizza-location/s/pizza-spot-002,/qr/pizzaexpress/pizza-location/C2.png
+Pizza Express,Pizza Express - Condesa,C3,pizza-spot-003,http://localhost:3001/l/pizza-location/s/pizza-spot-003,/qr/pizzaexpress/pizza-location/C3.png
+Pizza Express,Pizza Express - Condesa,C4,pizza-spot-004,http://localhost:3001/l/pizza-location/s/pizza-spot-004,/qr/pizzaexpress/pizza-location/C4.png
+Pizza Express,Pizza Express - Condesa,C5,pizza-spot-005,http://localhost:3001/l/pizza-location/s/pizza-spot-005,/qr/pizzaexpress/pizza-location/C5.png
+Pizza Express,Pizza Express - Condesa,C6,pizza-spot-006,http://localhost:3001/l/pizza-location/s/pizza-spot-006,/qr/pizzaexpress/pizza-location/C6.png
+Pizza Express,Pizza Express - Condesa,C7,pizza-spot-007,http://localhost:3001/l/pizza-location/s/pizza-spot-007,/qr/pizzaexpress/pizza-location/C7.png
+Pizza Express,Pizza Express - Condesa,C8,pizza-spot-008,http://localhost:3001/l/pizza-location/s/pizza-spot-008,/qr/pizzaexpress/pizza-location/C8.png
+Pizza Express,Pizza Express - Condesa,C9,pizza-spot-009,http://localhost:3001/l/pizza-location/s/pizza-spot-009,/qr/pizzaexpress/pizza-location/C9.png
