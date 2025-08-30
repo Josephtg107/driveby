@@ -7,6 +7,15 @@ try {
   if (process.env.DATABASE_URL) {
     console.log('✅ DATABASE_URL found, generating Prisma client...');
     execSync('npx prisma generate', { stdio: 'inherit' });
+    
+    // Try to push schema to database
+    try {
+      console.log('🗄️  Pushing database schema...');
+      execSync('npx prisma db push', { stdio: 'inherit' });
+      console.log('✅ Database schema pushed successfully');
+    } catch (dbError) {
+      console.log('⚠️  Database push failed, continuing with build...');
+    }
   } else {
     console.log('⚠️  No DATABASE_URL found, skipping Prisma generation...');
   }

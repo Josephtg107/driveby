@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "node scripts/build.js",
+    "seed": "node scripts/seed-db.js",
     "start": "next start",
     "db:push": "prisma db push",
     "db:seed": "ts-node prisma/seed.ts",

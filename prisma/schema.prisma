@@ -70,6 +70,7 @@ model Location {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   parkingSpots ParkingSpot[]
+  orders      Order[]
   Business    Business      @relation(fields: [businessId], references: [id])
 }
 
@@ -80,6 +81,7 @@ model ParkingSpot {
   locationId String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  orders     Order[]
   Location   Location @relation(fields: [locationId], references: [id])
 }
 
