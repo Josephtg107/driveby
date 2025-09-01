@@ -12,17 +12,19 @@ export default async function OrdersPage() {
     notFound();
   }
 
-  // Get business data
+  // Get business data - simplified query
   const business = await prisma.business.findUnique({
     where: { slug: tenant.businessSlug },
-    include: {
-      theme: true,
-    }
   });
 
   if (!business) {
     notFound();
   }
+
+  // Get theme separately
+  const theme = await prisma.theme.findUnique({
+    where: { businessId: business.id },
+  });
 
   // For now, we'll show static orders. In a real app, this would come from the database
   const orders = [
@@ -83,7 +85,7 @@ export default async function OrdersPage() {
               <Link href="/menu" className="flex items-center space-x-4">
                 <div 
                   className="w-8 h-8 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: business.theme?.primary || '#111827' }}
+                  style={{ backgroundColor: theme?.primary || '#111827' }}
                 >
                   <span className="text-white font-medium text-sm">
                     {business.name.charAt(0)}
@@ -135,7 +137,7 @@ export default async function OrdersPage() {
                 <Button 
                   className="px-8"
                   style={{ 
-                    backgroundColor: business.theme?.primary || '#111827',
+                    backgroundColor: theme?.primary || '#111827',
                     color: 'white'
                   }}
                 >
@@ -224,8 +226,8 @@ export default async function OrdersPage() {
                       variant="outline" 
                       className="flex-1"
                       style={{ 
-                        borderColor: business.theme?.primary || '#111827',
-                        color: business.theme?.primary || '#111827'
+                        borderColor: theme?.primary || '#111827',
+                        color: theme?.primary || '#111827'
                       }}
                     >
                       Ver Detalles
@@ -234,7 +236,7 @@ export default async function OrdersPage() {
                       <Button 
                         className="flex-1"
                         style={{ 
-                          backgroundColor: business.theme?.primary || '#111827',
+                          backgroundColor: theme?.primary || '#111827',
                           color: 'white'
                         }}
                       >

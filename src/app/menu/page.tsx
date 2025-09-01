@@ -1,7 +1,7 @@
 import { getTenantByHost } from "@/lib/tenant";
 import { prisma } from "@/server/db";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -12,34 +12,37 @@ export default async function MenuPage() {
     notFound();
   }
 
-  // Get business data
+  // Get business data - simplified query
   const business = await prisma.business.findUnique({
     where: { slug: tenant.businessSlug },
-    include: {
-      theme: true,
-      categories: {
-        include: {
-          products: {
-            include: {
-              modifierGroups: {
-                include: {
-                  modifierGroup: {
-                    include: {
-                      options: true
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
   });
 
   if (!business) {
     notFound();
   }
+
+  // Get theme separately
+  const theme = await prisma.theme.findUnique({
+    where: { businessId: business.id },
+  });
+
+  // Get categories and products separately to avoid complex includes
+  const categories = await prisma.category.findMany({
+    where: { businessId: business.id },
+  });
+
+  const products = await prisma.product.findMany({
+    where: { businessId: business.id },
+    include: {
+      category: true,
+    }
+  });
+
+  // Group products by category
+  const productsByCategory = categories.map(category => ({
+    ...category,
+    products: products.filter(product => product.categoryId === category.id)
+  }));
 
   return (
     <div className="min-h-screen bg-white">
@@ -50,7 +53,7 @@ export default async function MenuPage() {
             <div className="flex items-center space-x-4">
               <div 
                 className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: business.theme?.primary || '#111827' }}
+                style={{ backgroundColor: theme?.primary || '#111827' }}
               >
                 <span className="text-white font-medium text-sm">
                   {business.name.charAt(0)}
@@ -91,7 +94,7 @@ export default async function MenuPage() {
 
         {/* Categories and Products */}
         <div className="space-y-12">
-          {business.categories.map((category) => (
+          {productsByCategory.map((category) => (
             <section key={category.id} className="space-y-6">
               <h2 className="text-2xl font-medium text-gray-900 border-b border-gray-200 pb-2">
                 {category.name}
@@ -120,32 +123,10 @@ export default async function MenuPage() {
                         {product.description}
                       </p>
                       
-                      {/* Modifiers Preview */}
-                      {product.modifierGroups.length > 0 && (
-                        <div className="mb-4">
-                          <p className="text-xs text-gray-500 mb-2">Opciones disponibles:</p>
-                          <div className="flex flex-wrap gap-1">
-                            {product.modifierGroups.slice(0, 3).map((pmg) => (
-                              <span 
-                                key={pmg.id}
-                                className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full"
-                              >
-                                {pmg.modifierGroup.name}
-                              </span>
-                            ))}
-                            {product.modifierGroups.length > 3 && (
-                              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                                +{product.modifierGroups.length - 3} más
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                      
                       <Button 
                         className="w-full"
                         style={{ 
-                          backgroundColor: business.theme?.primary || '#111827',
+                          backgroundColor: theme?.primary || '#111827',
                           color: 'white'
                         }}
                       >

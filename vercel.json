@@ -1,14 +1,14 @@
 {
   "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "regions": ["iad1"],
   "env": {
-    "NEXT_PUBLIC_APP_NAME": "DriveByApp",
-    "ROOT_HOST": "drivebyapp.com",
-    "CSRF_ENABLED": "false",
     "ADMIN_DEMO_KEY": "demo-key-2025"
+  },
+  "functions": {
+    "src/app/**/*.tsx": {
+      "maxDuration": 30
+    }
   }
 }
 

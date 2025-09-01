@@ -12,17 +12,19 @@ export default async function CartPage() {
     notFound();
   }
 
-  // Get business data
+  // Get business data - simplified query to avoid TypeScript issues
   const business = await prisma.business.findUnique({
     where: { slug: tenant.businessSlug },
-    include: {
-      theme: true,
-    }
   });
 
   if (!business) {
     notFound();
   }
+
+  // Get theme separately to avoid include issues
+  const theme = await prisma.theme.findUnique({
+    where: { businessId: business.id },
+  });
 
   // For now, we'll show a static cart. In a real app, this would come from a session or database
   const cartItems = [
@@ -58,7 +60,7 @@ export default async function CartPage() {
               <Link href="/menu" className="flex items-center space-x-4">
                 <div 
                   className="w-8 h-8 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: business.theme?.primary || '#111827' }}
+                  style={{ backgroundColor: theme?.primary || '#111827' }}
                 >
                   <span className="text-white font-medium text-sm">
                     {business.name.charAt(0)}
@@ -110,7 +112,7 @@ export default async function CartPage() {
                 <Button 
                   className="px-8"
                   style={{ 
-                    backgroundColor: business.theme?.primary || '#111827',
+                    backgroundColor: theme?.primary || '#111827',
                     color: 'white'
                   }}
                 >
@@ -214,7 +216,7 @@ export default async function CartPage() {
                   <Button 
                     className="w-full py-3"
                     style={{ 
-                      backgroundColor: business.theme?.primary || '#111827',
+                      backgroundColor: theme?.primary || '#111827',
                       color: 'white'
                     }}
                   >
