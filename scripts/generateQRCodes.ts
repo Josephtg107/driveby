@@ -95,3 +95,5 @@ async function generateQRCodes() {
 generateQRCodes()
   .catch(console.error)
   .finally(() => prisma.$disconnect());
+
+

@@ -6,93 +6,94 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model Business {
-  id            String   @id @default(cuid())
-  name          String
-  slug          String   @unique
-  logoUrl       String?
-  currency      String   @default("MXN")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  locations     Location[]
-  users         User[]
-  products      Product[]
-  modifierGroups ModifierGroup[]
-  categories    Category[]
-  orders        Order[]
-  auditLogs     AuditLog[]
-  Theme         Theme?
-  DomainMapping DomainMapping[]
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  currency  String   @default("MXN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  theme             Theme?
+  domainMappings   DomainMapping[]
+  categories       Category[]
+  products         Product[]
+  modifierGroups   ModifierGroup[]
+  locations        Location[]
+  orders           Order[]
+
+  @@map("businesses")
 }
 
 model Theme {
-  id         String  @id @default(cuid())
-  businessId String  @unique
-  primary    String? // ej #0F172A
-  accent     String? // ej #22C55E
-  text       String?
-  logoUrl    String?
-  coverUrl   String?
-  Business   Business @relation(fields: [businessId], references: [id])
+  id         String @id @default(cuid())
+  primary    String
+  accent     String
+  text       String
+  businessId String @unique
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@map("themes")
 }
 
 model DomainMapping {
-  id            String   @id @default(cuid())
-  businessId    String
-  domain        String   @unique  // "cafeshop.com" o "cafeshop.drivebyapp.com"
-  primary       Boolean  @default(false)
-  locationId    String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  Business      Business @relation(fields: [businessId], references: [id])
-}
-
-model User {
-  id         String   @id @default(cuid())
-  email      String   @unique
-  name       String?
-  role       String   @default("staff") // admin, staff, viewer
+  id         String @id @default(cuid())
+  domain     String @unique
   businessId String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  Business   Business @relation(fields: [businessId], references: [id])
+  primary    Boolean @default(false)
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@map("domain_mappings")
 }
 
 model Location {
-  id          String        @id @default(cuid())
-  name        String
-  address     String?
-  businessId  String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id         String @id @default(cuid())
+  name       String
+  address    String
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
   parkingSpots ParkingSpot[]
-  orders      Order[]
-  Business    Business      @relation(fields: [businessId], references: [id])
+  orders       Order[]
+
+  @@map("locations")
 }
 
 model ParkingSpot {
-  id         String   @id @default(cuid())
-  code       String   // A1, A2, etc.
-  qrSlug     String   @unique // spot-001, spot-002, etc.
+  id         String @id @default(cuid())
+  code       String
+  qrSlug     String @unique
   locationId String
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  orders     Order[]
-  Location   Location @relation(fields: [locationId], references: [id])
+
+  // Relations
+  orders Order[]
+
+  @@map("parking_spots")
 }
 
 model Category {
-  id         String   @id @default(cuid())
+  id         String @id @default(cuid())
   name       String
   businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  products   Product[]
-  Business   Business @relation(fields: [businessId], references: [id])
+
+  // Relations
+  products Product[]
+
+  @@map("categories")
 }
 
 model Product {
@@ -101,109 +102,110 @@ model Product {
   description String?
   price       Float
   imageUrl    String?
-  available   Boolean  @default(true)
   categoryId  String
   businessId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  Category    Category @relation(fields: [categoryId], references: [id])
-  Business    Business @relation(fields: [businessId], references: [id])
-  productModifierGroups ProductModifierGroup[]
-  orderItems  OrderItem[]
+
+  // Relations
+  modifierGroups ProductModifierGroup[]
+  orderItems     OrderItem[]
+
+  @@map("products")
 }
 
 model ModifierGroup {
-  id            String   @id @default(cuid())
+  id            String @id @default(cuid())
   name          String
-  required      Boolean  @default(false)
-  maxSelections Int      @default(1)
+  required      Boolean @default(false)
+  maxSelections Int     @default(1)
   businessId    String
+  business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  options       ModifierOption[]
-  Business      Business @relation(fields: [businessId], references: [id])
+
+  // Relations
+  options           ModifierOption[]
   productModifierGroups ProductModifierGroup[]
+
+  @@map("modifier_groups")
 }
 
 model ModifierOption {
-  id             String       @id @default(cuid())
-  name           String
-  price          Float        @default(0)
+  id              String @id @default(cuid())
+  name            String
+  price           Float  @default(0)
   modifierGroupId String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  ModifierGroup  ModifierGroup @relation(fields: [modifierGroupId], references: [id])
+  modifierGroup   ModifierGroup @relation(fields: [modifierGroupId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
   orderItemModifiers OrderItemModifier[]
+
+  @@map("modifier_options")
 }
 
 model ProductModifierGroup {
-  id             String       @id @default(cuid())
-  productId      String
+  id              String @id @default(cuid())
+  productId       String
   modifierGroupId String
-  Product        Product      @relation(fields: [productId], references: [id])
-  ModifierGroup  ModifierGroup @relation(fields: [modifierGroupId], references: [id])
+  product         Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  modifierGroup   ModifierGroup @relation(fields: [modifierGroupId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([productId, modifierGroupId])
+  @@map("product_modifier_groups")
 }
 
 model Order {
-  id          String      @id @default(cuid())
-  orderNumber String      @unique
-  status      String      @default("pending") // pending, confirmed, preparing, ready, completed, cancelled
-  total       Float
-  businessId  String
-  locationId  String
-  parkingSpotId String?
-  customerName String?
-  customerPhone String?
-  customerEmail String?
-  notes       String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  Business    Business    @relation(fields: [businessId], references: [id])
-  Location    Location    @relation(fields: [locationId], references: [id])
-  ParkingSpot ParkingSpot? @relation(fields: [parkingSpotId], references: [id])
-  orderItems  OrderItem[]
-  orderEvents OrderEvent[]
+  id            String   @id @default(cuid())
+  orderNumber   String   @unique
+  status        String   @default("pending") // pending, preparing, ready, completed, cancelled
+  total         Float
+  parkingSpotId String
+  locationId    String
+  businessId    String
+  parkingSpot   ParkingSpot @relation(fields: [parkingSpotId], references: [id])
+  location      Location @relation(fields: [locationId], references: [id])
+  business      Business @relation(fields: [businessId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  items OrderItem[]
+
+  @@map("orders")
 }
 
 model OrderItem {
   id        String   @id @default(cuid())
   quantity  Int
   price     Float
-  productId String
   orderId   String
+  productId String
+  order     Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  Product   Product  @relation(fields: [productId], references: [id])
-  Order     Order    @relation(fields: [orderId], references: [id])
-  orderItemModifiers OrderItemModifier[]
+
+  // Relations
+  modifiers OrderItemModifier[]
+
+  @@map("order_items")
 }
 
 model OrderItemModifier {
-  id              String        @id @default(cuid())
-  orderItemId     String
-  modifierOptionId String
-  price           Float
-  OrderItem       OrderItem     @relation(fields: [orderItemId], references: [id])
-  ModifierOption  ModifierOption @relation(fields: [modifierOptionId], references: [id])
-}
+  id                String @id @default(cuid())
+  orderItemId       String
+  modifierOptionId  String
+  orderItem         OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  modifierOption    ModifierOption @relation(fields: [modifierOptionId], references: [id])
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
-model OrderEvent {
-  id        String   @id @default(cuid())
-  orderId   String
-  eventType String   // status_change, payment_received, etc.
-  data      String?  // JSON data
-  createdAt DateTime @default(now())
-  Order     Order    @relation(fields: [orderId], references: [id])
-}
-
-model AuditLog {
-  id         String   @id @default(cuid())
-  action     String
-  entityType String
-  entityId   String
-  userId     String?
-  businessId String
-  data       String?  // JSON data
-  createdAt  DateTime @default(now())
-  Business   Business @relation(fields: [businessId], references: [id])
+  @@map("order_item_modifiers")
 }

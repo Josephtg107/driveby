@@ -3,56 +3,32 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "node scripts/build.js",
-    "seed": "node scripts/seed-db.js",
+    "dev": "next dev --turbopack",
+    "build": "next build",
     "start": "next start",
-    "db:push": "prisma db push",
-    "db:seed": "ts-node prisma/seed.ts",
-    "qr:100": "ts-node scripts/generateQRCodes.ts",
-    "test:e2e": "playwright test",
-    "typecheck": "tsc --noEmit",
     "lint": "next lint",
-    "prepare": "husky"
+    "db:seed": "prisma db seed"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@prisma/client": "^6.14.0",
-    "@radix-ui/react-dialog": "^1.1.15",
-    "@radix-ui/react-dropdown-menu": "^2.1.16",
-    "@radix-ui/react-slot": "^1.2.3",
-    "@radix-ui/react-toast": "^1.2.15",
-    "@stripe/stripe-js": "^7.8.0",
-    "@upstash/ratelimit": "^2.0.6",
-    "@upstash/redis": "^1.35.3",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "lucide-react": "^0.539.0",
-    "next": "15.4.6",
-    "pino": "^9.9.0",
-    "prisma": "^6.14.0",
-    "qrcode": "^1.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "stripe": "^18.4.0",
-    "tailwind-merge": "^3.3.1",
-    "zod": "^4.0.17",
-    "zustand": "^5.0.7"
+    "next": "15.4.6",
+    "@prisma/client": "^6.15.0"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@playwright/test": "^1.54.2",
-    "@tailwindcss/postcss": "^4",
+    "typescript": "^5",
     "@types/node": "^20",
-    "@types/qrcode": "^1.5.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@tailwindcss/postcss": "^4",
+    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.1.5",
-    "playwright": "^1.54.2",
-    "tailwindcss": "^4",
-    "ts-node": "^10.9.2",
-    "typescript": "^5"
+    "@eslint/eslintrc": "^3",
+    "prisma": "^6.15.0",
+    "tsx": "^4.19.2"
   }
 }
