@@ -24,6 +24,7 @@ model Business {
   locations      Location[]
   categories     Category[]
   products       Product[]
+  modifierGroups ModifierGroup[]
   orders         Order[]
 
   @@map("Business")
