@@ -1,6 +1,10 @@
 import { prisma } from "@/server/db";
 import { NextResponse } from "next/server";
 
+export async function GET() {
+  return await POST();
+}
+
 export async function POST() {
   try {
     console.log('🔍 Setting up production database...');
