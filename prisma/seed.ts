@@ -474,7 +474,7 @@ async function main() {
         id: "demo-size",
         name: "Tamaño",
         required: true,
-        maxSelections: 1,
+        maxChoices: 1,
         businessId: driveby.id
       }
     }),
@@ -485,7 +485,7 @@ async function main() {
         id: "demo-extras",
         name: "Extras",
         required: false,
-        maxSelections: 3,
+        maxChoices: 3,
         businessId: driveby.id
       }
     })
