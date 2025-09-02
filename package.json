@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "db:seed": "prisma db seed",
+    "db:check": "node scripts/check-db.js",
     "postinstall": "prisma generate"
   },
   "prisma": {

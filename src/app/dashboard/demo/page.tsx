@@ -12,63 +12,62 @@ export default async function DemoDashboard() {
     notFound();
   }
 
-  // Get business data with real statistics
+  // Get business data - simplified query
   const business = await prisma.business.findUnique({
     where: { slug: tenant.businessSlug },
-    include: {
-      theme: true,
-      orders: {
-        where: {
-          createdAt: {
-            gte: new Date(new Date().setHours(0, 0, 0, 0)) // Today's orders
-          }
-        },
-        include: {
-          items: {
-            include: {
-              product: true
-            }
-          }
-        }
-      },
-      products: {
-        include: {
-          category: true,
-          orderItems: {
-            where: {
-              order: {
-                createdAt: {
-                  gte: new Date(new Date().setHours(0, 0, 0, 0)) // Today's orders
-                }
-              }
-            }
-          }
-        }
-      }
-    }
   });
 
   if (!business) {
     notFound();
   }
 
-  // Calculate real statistics
-  const todayOrders = business.orders;
-  const todayRevenue = todayOrders.reduce((sum, order) => sum + Number(order.total), 0);
-  const totalProducts = business.products.length;
-  const activeCustomers = new Set(todayOrders.map(order => order.parkingSpotId)).size;
+  // Get theme separately
+  const theme = await prisma.theme.findUnique({
+    where: { businessId: business.id },
+  });
 
-  // Get recent orders
+  // Get basic statistics with simple queries
+  const todayOrders = await prisma.order.count({
+    where: {
+      businessId: business.id,
+      createdAt: {
+        gte: new Date(new Date().setHours(0, 0, 0, 0)) // Today's orders
+      }
+    }
+  });
+
+  const todayRevenue = await prisma.order.aggregate({
+    where: {
+      businessId: business.id,
+      createdAt: {
+        gte: new Date(new Date().setHours(0, 0, 0, 0))
+      }
+    },
+    _sum: {
+      total: true
+    }
+  });
+
+  const totalProducts = await prisma.product.count({
+    where: { businessId: business.id }
+  });
+
+  const activeCustomers = await prisma.order.groupBy({
+    by: ['parkingSpotId'],
+    where: {
+      businessId: business.id,
+      createdAt: {
+        gte: new Date(new Date().setHours(0, 0, 0, 0))
+      }
+    }
+  });
+
+  // Get recent orders with simple query
   const recentOrders = await prisma.order.findMany({
     where: {
       businessId: business.id
     },
     include: {
-      items: {
-        include: {
-          product: true
-        }
-      },
       parkingSpot: true
     },
     orderBy: {
@@ -87,7 +86,7 @@ export default async function DemoDashboard() {
               <Link href="/" className="flex items-center space-x-4">
                 <div 
                   className="w-8 h-8 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: business.theme?.primary || '#111827' }}
+                  style={{ backgroundColor: theme?.primary || '#111827' }}
                 >
                   <span className="text-white font-medium text-sm">D</span>
                 </div>
@@ -135,7 +134,7 @@ export default async function DemoDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 font-light">Pedidos Hoy</p>
-                  <p className="text-3xl font-medium text-gray-900">{todayOrders.length}</p>
+                  <p className="text-3xl font-medium text-gray-900">{todayOrders}</p>
                 </div>
                 <div className="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center">
                   <span className="text-white text-xl">📋</span>
@@ -149,7 +148,9 @@ export default async function DemoDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 font-light">Ingresos Hoy</p>
-                  <p className="text-3xl font-medium text-gray-900">${todayRevenue.toFixed(2)}</p>
+                  <p className="text-3xl font-medium text-gray-900">
+                    ${(todayRevenue._sum.total || 0).toFixed(2)}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center">
                   <span className="text-white text-xl">💰</span>
@@ -163,7 +164,7 @@ export default async function DemoDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 font-light">Clientes Activos</p>
-                  <p className="text-3xl font-medium text-gray-900">{activeCustomers}</p>
+                  <p className="text-3xl font-medium text-gray-900">{activeCustomers.length}</p>
                 </div>
                 <div className="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center">
                   <span className="text-white text-xl">👥</span>
@@ -212,7 +213,7 @@ export default async function DemoDashboard() {
                           Estacionamiento {order.parkingSpot.code}
                         </p>
                         <p className="text-sm text-gray-600">
-                          {order.items.length} {order.items.length === 1 ? 'producto' : 'productos'}
+                          ${order.total.toFixed(2)}
                         </p>
                       </div>
                     </div>
