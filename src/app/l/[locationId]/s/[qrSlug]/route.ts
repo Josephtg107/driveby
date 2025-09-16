@@ -1,9 +1,21 @@
 import { prisma } from '@/server/db';
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
-export async function GET(req: Request, { params }: { params: { locationId: string; qrSlug: string } }) {
+type RouteContext = {
+  params: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export async function GET(req: NextRequest, context: RouteContext) {
   try {
-    const { locationId, qrSlug } = params;
+    const params = await context.params;
+    const rawLocationId = params?.locationId;
+    const rawQrSlug = params?.qrSlug;
+    const locationId = Array.isArray(rawLocationId) ? rawLocationId[0] : rawLocationId;
+    const qrSlug = Array.isArray(rawQrSlug) ? rawQrSlug[0] : rawQrSlug;
+
+    if (!locationId || !qrSlug) {
+      return NextResponse.redirect(new URL('/', req.url));
+    }
 
     const spot = await prisma.parkingSpot.findFirst({
       where: { locationId, qrSlug },
@@ -23,4 +35,3 @@ export async function GET(req: Request, { params }: { params: { locationId: stri
     return NextResponse.redirect(new URL('/', req.url));
   }
 }
-
