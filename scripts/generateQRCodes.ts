@@ -33,7 +33,9 @@ async function generateQRCodes() {
       console.log(`  Ubicación: ${location.name}`);
       
       for (const spot of location.parkingSpots) {
-        const url = `http://localhost:3001/l/${location.id}/s/${spot.qrSlug}`;
+        const baseUrl = process.env.PUBLIC_BASE_URL || process.env.VERCEL_URL || 'http://localhost:3000';
+        const normalizedBase = baseUrl.startsWith('http') ? baseUrl : `https://${baseUrl}`;
+        const url = `${normalizedBase}/l/${location.id}/s/${spot.qrSlug}`;
         
         // Create QR code
         const qrCodeDataURL = await QRCode.toDataURL(url, {
@@ -95,5 +97,4 @@ async function generateQRCodes() {
 generateQRCodes()
   .catch(console.error)
   .finally(() => prisma.$disconnect());
-
 

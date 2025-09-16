@@ -4,54 +4,42 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cookies } from 'next/headers';
 
 export default async function OrdersPage() {
   const tenant = await getTenantByHost();
-  
-  if (!tenant) {
-    notFound();
-  }
+  if (!tenant) notFound();
 
-  // Get business data - simplified query
-  const business = await prisma.business.findUnique({
-    where: { slug: tenant.businessSlug },
-  });
+  const business = await prisma.business.findUnique({ where: { slug: tenant.businessSlug } });
+  if (!business) notFound();
 
-  if (!business) {
-    notFound();
-  }
+  const theme = await prisma.theme.findUnique({ where: { businessId: business.id } });
 
-  // Get theme separately
-  const theme = await prisma.theme.findUnique({
-    where: { businessId: business.id },
-  });
+  const cookieStore = await cookies();
+  const parkingSpotId = cookieStore.get('parkingSpotId')?.value;
 
-  // For now, we'll show static orders. In a real app, this would come from the database
-  const orders = [
-    {
-      id: "1",
-      orderNumber: "ORD-001",
-      status: "preparing",
-      total: 203.00,
-      items: [
-        { name: "Hamburguesa Clásica", quantity: 2, price: 89.00 },
-        { name: "Refresco", quantity: 1, price: 25.00 }
-      ],
-      createdAt: "2025-01-15T14:30:00Z",
-      estimatedTime: "15 min"
+  const dbOrders = await prisma.order.findMany({
+    where: {
+      businessId: business.id,
+      ...(parkingSpotId ? { parkingSpotId } : {}),
     },
-    {
-      id: "2",
-      orderNumber: "ORD-002", 
-      status: "completed",
-      total: 129.00,
-      items: [
-        { name: "Hamburguesa BBQ", quantity: 1, price: 129.00 }
-      ],
-      createdAt: "2025-01-15T12:15:00Z",
-      completedAt: "2025-01-15T12:45:00Z"
-    }
-  ];
+    include: {
+      items: { include: { product: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 20,
+  });
+
+  const orders = dbOrders.map((o) => ({
+    id: o.id,
+    orderNumber: o.orderNumber,
+    status: o.status,
+    total: Number(o.total),
+    items: o.items.map((it) => ({ name: it.product.name, quantity: it.quantity, price: Number(it.price) })),
+    createdAt: o.createdAt.toISOString(),
+    completedAt: o.status === 'completed' ? o.updatedAt.toISOString() : undefined,
+    estimatedTime: o.status === 'preparing' ? '15 min' : undefined,
+  }));
 
   const getStatusColor = (status: string) => {
     switch (status) {

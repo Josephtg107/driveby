@@ -21,7 +21,7 @@ try {
     
     // Generate QR codes
     console.log('📱 Generating QR codes...');
-    execSync('npm run qr:100', { stdio: 'inherit' });
+    execSync('npm run qr:gen', { stdio: 'inherit' });
     
     console.log('✅ Database seeded successfully!');
   } else {
@@ -32,5 +32,4 @@ try {
   console.error('❌ Seeding failed:', error.message);
   process.exit(1);
 }
-
 

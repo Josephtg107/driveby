@@ -9,7 +9,8 @@
     "lint": "next lint",
     "db:seed": "prisma db seed",
     "db:check": "node scripts/check-db.js",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "qr:gen": "tsx scripts/generateQRCodes.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

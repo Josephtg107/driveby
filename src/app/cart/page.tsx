@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import CheckoutButton from "./CheckoutButton";
 
 export default async function CartPage() {
   const tenant = await getTenantByHost();
@@ -26,25 +27,27 @@ export default async function CartPage() {
     where: { businessId: business.id },
   });
 
-  // For now, we'll show a static cart. In a real app, this would come from a session or database
+  // Static demo cart: pick real product ids from DB to create real order
+  const demoBurger = await prisma.product.findFirst({ where: { businessId: business.id, name: { contains: 'Hamburguesa' } } });
+  const demoDrink = await prisma.product.findFirst({ where: { businessId: business.id, name: { contains: 'Refresco' } } });
   const cartItems = [
-    {
-      id: "1",
-      name: "Hamburguesa Clásica",
-      price: 89.00,
+    demoBurger && {
+      id: demoBurger.id,
+      name: demoBurger.name,
+      price: Number(demoBurger.price),
       quantity: 2,
       modifiers: ["Tamaño: Grande", "Extra: Queso Extra"],
-      imageUrl: "https://picsum.photos/id/237/400/300"
+      imageUrl: demoBurger.imageUrl || undefined,
     },
-    {
-      id: "2", 
-      name: "Refresco",
-      price: 25.00,
+    demoDrink && {
+      id: demoDrink.id,
+      name: demoDrink.name,
+      price: Number(demoDrink.price),
       quantity: 1,
       modifiers: [],
-      imageUrl: "https://picsum.photos/id/239/400/300"
-    }
-  ];
+      imageUrl: demoDrink.imageUrl || undefined,
+    },
+  ].filter(Boolean) as Array<{ id: string; name: string; price: number; quantity: number; modifiers: string[]; imageUrl?: string }>;
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const tax = subtotal * 0.16; // 16% IVA
@@ -213,15 +216,11 @@ export default async function CartPage() {
                     </div>
                   </div>
                   
-                  <Button 
+                  <CheckoutButton 
+                    items={cartItems.map(i => ({ productId: i.id, quantity: i.quantity, unitPrice: i.price }))}
                     className="w-full py-3"
-                    style={{ 
-                      backgroundColor: theme?.primary || '#111827',
-                      color: 'white'
-                    }}
-                  >
-                    Proceder al Pago
-                  </Button>
+                    style={{ backgroundColor: theme?.primary || '#111827', color: 'white' }}
+                  />
                   
                   <Link href="/menu">
                     <Button variant="outline" className="w-full">
